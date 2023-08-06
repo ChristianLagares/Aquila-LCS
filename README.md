@@ -18,7 +18,7 @@ Users need to modify the following parameters to suit their specific datasets an
 - `UPSCALE`: Determines the upscaling factor for additional flow fields between every real field. Setting this to `1` avoids upscaling.
 - `FLOWFIELDS`: If a dynamic FTLE is required, set this to the desired number of FTLEs.
 - `SKIP`: If skipping underlying flow fields is needed, adjust this number.
-- `CONFIGS`: This allows for a list of refinement values along x, y, z directions. For example, `(8, 8, 3)` indicates 415.8M particles.
+- `CONFIGS`: This allows for a list of refinement values along x, y, z directions. For example, `(8, 8, 3)` indicates a refinement of `8x` along the streamwise and wall-normal directions and `3x` along the spanwise direction.
 - `BASE_DIR`: The base directory where the data is located.
 - `CASE_NAME`: Name of the case being processed.
 - `MACH_MOD`: Machine model or identifier.
@@ -36,7 +36,7 @@ After modifying the necessary configuration parameters, run the script. Ensure a
 
 - The script provides extensive print outputs to monitor the progress, including the particle count, time elapsed during various stages, and the current configuration being processed.
 - The script uses both backward (`-1`) and forward (`1`) directions for the particle simulations.
-- If `RUNSIM` is set to `True`, particle simulations will be executed. If `CALCULATE_FTLE` is set to `True`, the FTLE calculations will be performed.
+- If `RUNSIM` is set to `True`, particle simulations will be executed. If `CALCULATE_FTLE` is set to `True`, the FTLE and FSLE calculations will be performed.
 - The script is designed to handle parallel processing and uses MPI for communication. Ensure that an MPI environment is set up correctly before running the script.
 - For efficient memory management, the garbage collector is called regularly throughout the script.
 
