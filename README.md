@@ -34,6 +34,11 @@ After modifying the necessary configuration parameters, run the script. Ensure a
 
 ## Notes
 
+- The script expects data to be in 4 dimensional HDF5 files with shape (`Nx,Ny,Nv,Nz`) where
+  * `Nx` is the number of nodes along the streamwise direction.
+  * `Ny` is the number of nodes along the wall-normal direction.
+  * `Nz` is the number of nodes along the spanwise direction.
+  * `Nv` is the number of variables and is assumed to be 5 internally (Pressure, 3 Components of Velocity & Temperature).
 - The script provides extensive print outputs to monitor the progress, including the particle count, time elapsed during various stages, and the current configuration being processed.
 - The script uses both backward (`-1`) and forward (`1`) directions for the particle simulations.
 - If `RUNSIM` is set to `True`, particle simulations will be executed. If `CALCULATE_FTLE` is set to `True`, the FTLE and FSLE calculations will be performed.
