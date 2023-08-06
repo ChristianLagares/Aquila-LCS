@@ -32,6 +32,15 @@ After modifying the necessary configuration parameters, run the script. Ensure a
 
 `run_aquila_lcs.pbs` offers an example of how to run the script using the PBS batch scheduler.
 
+## Sample Data
+
+For the purposes of validation, we provide a dataset corresponding to a Low Reynolds number (Low Re) condition at Mach 0.8. This dataset can be instrumental for those seeking to benchmark or validate their methodologies against well-established data. The dataset contains 4001 flow fields of a turbulent boundary layer over an adiabatic flat plate. The flow fields are stored in compressed (lossless) HDF5 files which occupy about 70-75% of the total file size.
+
+
+**Access the Dataset:**  
+[Low Re, Mach 0.8 Dataset on Google Drive](https://drive.google.com/drive/folders/1vBzDYxTwJjJ-0f6A6mpb3K35MAqRkhOu?usp=share_link)
+
+
 ## Notes
 
 - The script expects data to be in 4 dimensional HDF5 files with shape (`Nx,Ny,Nv,Nz`) where
