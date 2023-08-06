@@ -41,3 +41,28 @@ After modifying the necessary configuration parameters, run the script. Ensure a
 - For efficient memory management, the garbage collector is called regularly throughout the script.
 
 Please make sure you understand each parameter's purpose before modifying and running the script. If unsure, consult the accompanying documentation or the person responsible for the initial setup.
+
+## Citation Requirement
+If you use this software in your research, academic, or professional work, please cite our related paper to acknowledge the software's origins and offer credit to its developers:
+
+Lagares, Christian, and Guillermo Araya. 2023. "A GPU-Accelerated Particle Advection Methodology for 3D Lagrangian Coherent Structures in High-Speed Turbulent Boundary Layers." Energies 16, no. 12: 4800. [https://doi.org/10.3390/en16124800](https://doi.org/10.3390/en16124800)
+
+For those using BibTeX (for LaTeX), here's the corresponding entry:
+
+```
+@article{lagares2023gpu,
+  title={A GPU-Accelerated Particle Advection Methodology for 3D Lagrangian Coherent Structures in High-Speed Turbulent Boundary Layers},
+  author={Lagares, Christian and Araya, Guillermo},
+  journal={Energies},
+  volume={16},
+  number={12},
+  pages={4800},
+  year={2023},
+  publisher={Multidisciplinary Digital Publishing Institute},
+  doi={https://doi.org/10.3390/en16124800}
+}
+```
+
+Your citation helps support and recognize our research and development efforts. Thank you!
+
+
