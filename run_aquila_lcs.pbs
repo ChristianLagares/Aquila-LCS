@@ -1,0 +1,28 @@
+#!/bin/bash
+## The first line (above) specifies the shell to use for parsing the
+## remaining lines of the batch script.
+
+## Required PBS Directives --------------------------------------
+#PBS -A PROJECT_NUMBER
+#PBS -q QUEUE_NAME
+#PBS -l select=NODE_COUNT:ncpus=CPUS_PER_NODES:mpiprocs=GPUS_PER_NODE:ngpus=1
+#PBS -l walltime=WALL_TIME
+
+## Optional PBS Directives --------------------------------------
+#PBS -N JOB_NAME
+#PBS -m be
+#PBS -M EMAIL_ADDRESS
+#PBS -j oe
+#PBS -S /bin/bash
+#PBS -V
+
+## Execution Block ----------------------------------------------
+# Environment Setup
+# cd to the directory where the ftle_cuda.py script is stored.
+cd DIRECTORY
+
+export NUMBA_NUM_THREADS=CPUS_PER_NODE
+export NUMBA_THREADING_LAYER=tbb
+
+
+time mpiexec -n NODE_COUNT*GPUS_PER_NODE -ppn GPUS_PER_NODE --cpu-bind none python ftle_cuda.py 
