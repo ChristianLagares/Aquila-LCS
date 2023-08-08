@@ -2,6 +2,8 @@
 
 This script (`ftle_cuda.py`) is designed to run particle simulations and calculate the Finite-Time Lyapunov Exponent (FTLE) on a given dataset using Nvidia GPUs (a CPU version of the code is available upon reasonable request).
 
+![](ezgif-5-0e7ab84262.gif)
+
 ## Overview
 
 1. The script initializes by selecting the appropriate GPU via the `select_gpu()` function.
