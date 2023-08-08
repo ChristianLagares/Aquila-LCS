@@ -1,6 +1,6 @@
 # Aquila-LCS: Particle Simulation and FTLE Calculation Script
 
-This script (`ftle_cuda.py`) is designed to run particle simulations and calculate the Finite-Time Lyapunov Exponent (FTLE) on a given dataset using Nvidia GPUs (a CPU version of the code is available upon reasonable request).
+This script (`ftle_cuda.py`) is designed to run particle simulations and calculate the Finite-Time Lyapunov Exponent (FTLE) on a given dataset using Nvidia GPUs (a CPU version of the code is available upon reasonable request). A CPU-based alternative is provided in `ftle_cpu.py`. It follows the same algorithmic structure and provides the same functionality. It is multi-threaded within a node and can be used in a distributed matter (as with the GPU alternative) using MPI. Hence, both versions are written in a MPI+X style.
 
 ![](ezgif-5-0e7ab84262.gif)
 
