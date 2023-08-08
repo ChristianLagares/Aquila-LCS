@@ -20,21 +20,11 @@ from pyevtk.hl import pointsToVTK, gridToVTK
 
 from mpi4py import MPI
 
-
-THREADS_PER_BLOCK = 64
-MAX_THREADS_PER_SM = 2048
-SM_COUNT = 80
-BLOCKS_PER_GRID = (MAX_THREADS_PER_SM // THREADS_PER_BLOCK) * SM_COUNT
-
-THREADS_PER_BLOCK_3D = (2, 2, 32)
-BLOCKS_PER_GRID_3D = (16, 16, 7)
-
 REAL_NP = np.float32
 REAL_CP = float32
 CUDA_INT = uint64
 
 FAST_MATH = True
-
 
 def master_print(msg):
     comm = MPI.COMM_WORLD
