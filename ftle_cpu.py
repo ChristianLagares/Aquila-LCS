@@ -822,7 +822,7 @@ def calculate_particle_ftle_2d(xp0, yp0, zp0, xp1, yp1, zp1, C, N, dt):
 
 
 def write_viz_files(xp0, yp0, zp0, ftle, fsle, N, filename):
-    filename_ftle = filename + f".ftle.{N}"
+    filename_ftle = filename + f".ftle{N}"
     gridToVTK(filename_ftle, xp0, yp0, zp0, pointData={'FTLE': ftle, 'FSLE':fsle})
     return
 
