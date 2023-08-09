@@ -821,9 +821,17 @@ def calculate_particle_ftle_2d(xp0, yp0, zp0, xp1, yp1, zp1, C, N, dt):
                     C[ii, jj, 0, i, j] = _C[i,j] 
 
 
-def write_viz_files(xp0, yp0, zp0, ftle, fsle, N, filename):
-    filename_ftle = filename + f".ftle{N}"
-    gridToVTK(filename_ftle, xp0, yp0, zp0, pointData={'FTLE': ftle, 'FSLE':fsle})
+def write_viz_files(xp0, yp0, zp0, xp1, yp1, zp1, ftle, fsle, N, filename):
+    filename_ftle = filename + f".ftle"
+    filename_particles = filename + f".particles.{N}"
+
+    gridToVTK(filename_ftle, xp0, yp0, zp0, pointData={'FTLE': ftle, 'FSLE': fsle})
+    pointsToVTK(
+        filename_particles,
+        np.array(xp1.reshape((-1))),
+        np.array(yp1.reshape((-1))),
+        np.array(zp1.reshape((-1)))
+    )
     return
 
 
@@ -911,7 +919,7 @@ def process_multiple_parallel_final_particle_info(filename, dt, output_file, viz
 
                 FTLE[N-1,...] = ftle
                 FSLE[N-1,...] = fsle
-                write_viz_files(x, y, z, ftle, fsle, int(N*NFlowFields), viz_filename)
+                write_viz_files(x, y, z, xp1, yp1, zp1, ftle, fsle, int(N*NFlowFields), viz_filename)
                 iteration += 1
                 bar.update(iteration)
                 sys.stdout.flush()
