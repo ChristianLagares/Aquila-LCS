@@ -89,7 +89,7 @@ def interp_UVW(U0, V0, W0, U1, V1, W1, Un, Vn, Wn, dt, fraction=0.1, N=0):
 
     Nx, Ny, Nz = U0.shape
 
-    for ii in prange(Ny):
+    for ii in prange(Nx):
         for jj in range(Ny):
             for kk in range(Nz):
                 Um = REAL_CP(REAL_CP(0.5) * (U0[ii, jj, kk] + U1[ii, jj, kk]))
@@ -573,7 +573,7 @@ def particle_simulator(
         FRACTION = 1./upscale
         TIMER_LEN = len(filenames[1:]) - 1
         for ii, (U, V, W) in enumerate(pool.map(read_UVW, filenames[1:])):
-            if (ii % TIMER_LEN//4) == 0:
+            if True:#(ii % TIMER_LEN//4) == 0:
                 gc.collect()
                 bar.update(ii)
             d_U0, d_U = d_U, d_U0
@@ -703,13 +703,8 @@ def calculate_particle_ftle_and_fsle(xp0, yp0, zp0, xp1, yp1, zp1, ftle, fsle, T
 
     distance_mean_factor = REAL_CP(0.038461538461538)
 
-    J = np.empty((3, 3), REAL_CP)
-    _C = np.empty((3, 3), REAL_CP)
-
-    b_k = np.empty((3,), REAL_CP)
-    b_k1 = np.empty((3,), REAL_CP)
-
-    for ii in prange(Ny):
+    for ii in prange(Nx):
+        J = np.empty((3, 3), REAL_CP)
         for jj in range(Ny):
             for kk in range(Nz):
                 # X Derivatives
@@ -773,8 +768,11 @@ def calculate_particle_ftle_and_fsle(xp0, yp0, zp0, xp1, yp1, zp1, ftle, fsle, T
                                         (zp1[ii+_i,jj+_j,kk+_k] - zp1[ii,jj,kk])*(zp1[ii+_i,jj+_j,kk+_k] - zp1[ii,jj,kk])
                                     )
                                     fsle[ii, jj, kk] += distance_mean_factor * T_inv * log(d1 / d0)
-                _C = device_transposed_matmul_and_make_symmetric_3d(J, _C)
-                ftle[ii, jj, kk] = log( sqrt( power_iteration_3d(_C, b_k, b_k1) )) * T_inv
+                #_C = device_transposed_matmul_and_make_symmetric_3d(J, _C)
+                C = J.T @ J #np.matmul(J.T, J, out=_C)
+                C = (C + C.T) * REAL_CP(0.5)
+                # power_iteration_3d(_C, b_k, b_k1)
+                ftle[ii, jj, kk] = log( sqrt( np.max(np.linalg.eigvalsh(C)) )) * T_inv
 
 
 @njit(fastmath=True, parallel=True, nogil=True)
@@ -790,7 +788,7 @@ def calculate_particle_ftle_2d(xp0, yp0, zp0, xp1, yp1, zp1, C, N, dt):
     kk = 0
     J = np.empty((2, 2), REAL_CP)
     _C = np.empty((2, 2), REAL_CP)
-    for ii in prange(Ny):
+    for ii in prange(Nx):
         for jj in range(Ny):
             # X Derivatives
             if ii == 0:
