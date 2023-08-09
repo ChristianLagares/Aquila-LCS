@@ -883,9 +883,17 @@ def calculate_particle_ftle_2d(xp0, yp0, zp0, xp1, yp1, zp1, C, N, dt):
                     C[ii, jj, 0, i, j] = _C[i,j] 
 
 
-def write_viz_files(xp0, yp0, zp0, ftle, fsle, N, filename):
-    filename_ftle = filename + f".ftle{N}"
-    gridToVTK(filename_ftle, xp0, yp0, zp0, pointData={'FTLE': ftle, 'FSLE':fsle})
+def write_viz_files(xp0, yp0, zp0, xp1, yp1, zp1, ftle, fsle, N, filename):
+    filename_ftle = filename + f".ftle"
+    filename_particles = filename + f".particles.{N}"
+
+    gridToVTK(filename_ftle, xp0, yp0, zp0, pointData={'FTLE': ftle, 'FSLE': fsle})
+    pointsToVTK(
+        filename_particles, 
+        np.array(xp1.reshape((-1))), 
+        np.array(yp1.reshape((-1))), 
+        np.array(zp1.reshape((-1)))
+    )
     return
 
 
@@ -898,60 +906,6 @@ def correct_ftle(U, ftle):
                 if np.abs(ftle[ii,jj,kk]) > 0.5:
                     ftle[ii-1:ii+1, jj-1:jj+2, kk] = 0.0
     return ftle
-
-
-def process_final_particle_info(filename, dt, output_file, viz_filename, x, y, z, make_2d_simulation = False, NFlowFields = None):
-    comm = MPI.COMM_WORLD
-    my_rank = comm.rank
-    total_ranks = comm.size
-    with h5py.File(filename, 'r', driver='mpio', comm=comm) as f, \
-         h5py.File(output_file, 'w', driver='mpio', comm=comm) as h5Out:
-        xyz_particle = f["Particle_xyz"]
-        x = f["refined_x"][...]
-        y = f["refined_y"][...]
-        z = f["refined_z"][...]
-        Nx, Ny, Nz = x.shape
-
-        NTimeSteps = xyz_particle.shape[0]
-
-        xp0 = xyz_particle[0, 0, :].reshape((Nx, Ny, Nz))
-        yp0 = xyz_particle[0, 1, :].reshape((Nx, Ny, Nz))
-        zp0 = xyz_particle[0, 2, :].reshape((Nx, Ny, Nz))
-        
-        h5Out.create_dataset(
-            f"FTLE",
-            shape=(NTimeSteps, Nx, Ny, Nz),
-            dtype=REAL_NP,
-        )
-        FTLE = h5Out['FTLE']
-
-        with ProgressBar(max_value=len(list(range(my_rank, NTimeSteps, total_ranks))) + 1) as bar:
-            iteration = 0
-            for N in range(my_rank, NTimeSteps, total_ranks):
-                #bar.update(iteration)
-                #sys.stdout.flush()
-
-                if make_2d_simulation:
-                    C = cuda.device_array((Nx, Ny, 1, 2, 2), dtype=REAL_NP)
-                    calculate_ftle = calculate_particle_ftle_2d
-                else:
-                    C = cuda.device_array((Nx, Ny, Nz, 3, 3), dtype=REAL_NP)
-                    calculate_ftle = calculate_particle_ftle
-                calculate_ftle[BLOCKS_PER_GRID_3D, THREADS_PER_BLOCK_3D](xp0, yp0, zp0, C, N, dt)
-                LambdaMax = np.max(np.linalg.eigvalsh(np.array(C)), axis=-1)
-                ftle = (1. / (abs(N * NFlowFields * dt) + 1.19e-07)) * np.log(np.sqrt(LambdaMax))
-                ftle = np.nan_to_num(ftle, nan=0.0, posinf=0.0, neginf=0.0)
-                ftle -= np.min(ftle)
-                ftle /= (np.max(ftle) * np.sign(dt) + 1.19e-07)
-                ftle[:, -3:, :] = ftle[:, -3, np.newaxis, :]
-                ftle[:, :, -3:] = ftle[:, :, np.newaxis, -3]
-                ftle[:, :, :3] = ftle[:, :, np.newaxis, 3]
-                FTLE[N,...] = ftle 
-                write_viz_files(x, y, z, ftle, int(N*NFlowFields), viz_filename)
-                iteration += 1
-                #bar.update(iteration)
-                #sys.stdout.flush()
-    return
 
 
 def process_multiple_parallel_final_particle_info(filename, dt, output_file, viz_filename, x, y, z, make_2d_simulation = False, NFlowFields = None):
@@ -1027,7 +981,7 @@ def process_multiple_parallel_final_particle_info(filename, dt, output_file, viz
 
                 FTLE[N-1,...] = ftle
                 FSLE[N-1,...] = fsle
-                write_viz_files(x, y, z, ftle, fsle, int(N*NFlowFields), viz_filename)
+                write_viz_files(x, y, z, xp1, yp1, zp1, ftle, fsle, int(N*NFlowFields), viz_filename)
                 iteration += 1
                 bar.update(iteration)
                 sys.stdout.flush()
@@ -1039,19 +993,21 @@ if __name__ == "__main__":
     RUNSIM = True
     CALCULATE_FTLE = True
 
-    NFIELDS = 14 # Number of Flow Fields to reach ~t^+ = 40
+    NFIELDS = 111
     UPSCALE = 40 #20 # 8 additional flow fields between every real field.
-                  # Set this value to 1 to avoid upscaling.
-    FLOWFIELDS = 1 # For a dynamic FTLE, set this number to the desired number of FTLEs
-    SKIP = 1 # If you require skipping underlying flow fields, set this number to the desired value.
-    MAKE_2D_SIMULATION = False # Particle advection can neglect spanwise valocity.
-    WRITE_ALL_TIME_STEPS = False # Write intermediate steps for particle advection visualization.
-    # CONFIGS Allows for a list of refinement values along x, y, z directions
+                 # Set this value to 1 to avoid upscaling.
+    DNS_TIMESTEP = 2.00E-03 # Simulation timestep
+    SAMPLE_RATE = 1 # Simulation sampling rate (every how many timesteps is the flow sampled)
+    FLOWFIELDS = 1  # How many FTLEs to generate for a dynamic FTLE (1 for a single FTLE)
+    SKIP = 1 # Sampling frequency for the FTLEs. (10 would generate an FTLE every 10 flow field)
+    MAKE_2D_SIMULATION = False
+    WRITE_ALL_TIME_STEPS = False # Write intermediate steps of the particle advection for particle visualization.
+
     CONFIGS = [
-        (8, 8, 3), # 415.8M particles
+        (7, 6, 6), # 532.2M particles
     ]
     FCENTERS = list(range(0, FLOWFIELDS, SKIP))
-    DIRECTIONS = [-1,1] # Backward and Forw
+    DIRECTIONS = [-1,1] # Backward and Forward Integration (Attracting and Repelling Lines, respectively)
 
     for X_UP, Y_UP, Z_UP in CONFIGS:
         master_print("*"*100)
@@ -1061,16 +1017,16 @@ if __name__ == "__main__":
         master_print("Configuration:")
         master_print(f"    + ({X_UP}, {Y_UP}, {Z_UP})")
 
-        # Configure Base Directory
-        BASE_DIR = "./M08/Z_hdf5_c_260_300K"
+
+        BASE_DIR = "../hdf5_u"
         CASE_NAME = "ZPG_LOW_RE"
-        MACH_MOD = "M08"
+        MACH_MOD = "INCOMPRESSIBLE"
         WALL_CONDITION = "Adiabatic"
 
         coord_path = f"{BASE_DIR}/coord_1_440.txt.h5"
         filenames_full = sorted(
             glob.glob(f"{BASE_DIR}/PUVWT*.h5")
-            )
+        )
         Ntime = len(filenames_full)
         t1 = time.time()
         with h5py.File(coord_path, "r", driver='mpio', comm=MPI.COMM_WORLD) as hf:
@@ -1083,14 +1039,14 @@ if __name__ == "__main__":
         PARTICLE_COUNT = X_UP * Y_UP * Z_UP * Nx * Ny * Nz
         master_print(f"Particle Count = {PARTICLE_COUNT}")
         t2 = time.time()
-        master_print(f"Time Elapsed Reading Coordinates: {t2 - t1} s")
+        master_print(f"Time Elapsed Reading Coordinates and Building Acceleration Structure: {t2 - t1} s")
         sys.stdout.flush()
 
         for DIRECTION in DIRECTIONS:
             for FLOW_CENTER in FCENTERS:
                 master_print(f"Global Step: {FLOW_CENTER}")
                 gc.collect()
-                dt = DIRECTION * 4.0e-4 * 10
+                dt = DIRECTION * DNS_TIMESTEP * SAMPLE_RATE
                 FIELDS = Ntime // 2 - 2
                 filenames = filenames_full[Ntime//2 : (Ntime//2) * (DIRECTION * FIELDS) : DIRECTION]
                 CURRENT_ID = os.path.split(filenames[FLOW_CENTER])[1][:-3]
@@ -1102,7 +1058,6 @@ if __name__ == "__main__":
                     output_filename = f"./Temporal/ParticleTracking_{CASE_NAME}_{X_UP}x_{Y_UP}x_{Z_UP}x_{PARTICLE_COUNT}P_{NFIELDS}Fields_TEMPORAL_UPS{UPSCALE}_{MACH_MOD}_{WALL_CONDITION}.backward.gpu.skip.step.{CURRENT_ID}.h5"
                     ftle_filename = f"./Temporal/ParticleTracking_{CASE_NAME}_{X_UP}x_{Y_UP}x_{Z_UP}x_{PARTICLE_COUNT}P_{NFIELDS}Fields_TEMPORAL_UPS{UPSCALE}_{MACH_MOD}_{WALL_CONDITION}.backward.ftle.gpu.skip.step.{CURRENT_ID}.h5"
                     viz_filename = f"./Temporal/PV_VIZ/ParticleTracking_{CASE_NAME}_{X_UP}x_{Y_UP}x_{Z_UP}x_{PARTICLE_COUNT}P_{NFIELDS}Fields_TEMPORAL_UPS{UPSCALE}_{MACH_MOD}_{WALL_CONDITION}.backward.gpu.skip.step.{CURRENT_ID}"
-
                 if RUNSIM:
                     t3 = time.time()
                     particle_simulator(
@@ -1144,7 +1099,7 @@ if __name__ == "__main__":
         PARTICLE_COUNT = X_UP * Y_UP * Z_UP * Nx * Ny * Nz
         if CALCULATE_FTLE:
             gc.collect()
-            dt = DIRECTION * 4.0e-4 * 10
+            dt = DIRECTION * DNS_TIMESTEP * SAMPLE_RATE
             FIELDS = Ntime // 2 - 2
             filenames = filenames_full[Ntime//2 : (Ntime//2) * (DIRECTION * FIELDS) : DIRECTION]
             CURRENT_ID = os.path.split(filenames[FLOW_CENTER])[1][:-3]
