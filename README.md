@@ -40,7 +40,7 @@ For the purposes of validation, we provide a dataset corresponding to a Low Reyn
 
 
 **Access the Dataset:**  
-[Low Re, Mach 0.8 Dataset on Google Drive](https://drive.google.com/drive/folders/1vBzDYxTwJjJ-0f6A6mpb3K35MAqRkhOu?usp=share_link)
+[Low Re, Incompressible Dataset on Google Drive](https://drive.google.com/drive/folders/10eom_FFoH_UL_jPmKpshCUYlAYnfWPeX?usp=share_link)
 
 
 ## Notes
@@ -59,6 +59,7 @@ For the purposes of validation, we provide a dataset corresponding to a Low Reyn
 Please make sure you understand each parameter's purpose before modifying and running the script. If unsure, consult the accompanying documentation or the person responsible for the initial setup.
 
 ## Citation Requirement
+### Source Code and Implementation Details
 If you use this software in your research, academic, or professional work, please cite our related paper to acknowledge the software's origins and offer credit to its developers:
 
 Lagares, Christian, and Guillermo Araya. 2023. "A GPU-Accelerated Particle Advection Methodology for 3D Lagrangian Coherent Structures in High-Speed Turbulent Boundary Layers." Energies 16, no. 12: 4800. [https://doi.org/10.3390/en16124800](https://doi.org/10.3390/en16124800)
@@ -80,5 +81,34 @@ For those using BibTeX (for LaTeX), here's the corresponding entry:
 ```
 
 Your citation helps support and recognize our research and development efforts. Thank you!
+
+### Dataset
+
+If you make use of or refer to the provided dataset in any capacity, it is imperative that you cite the following key references:
+
+1. Araya, G., Lagares, C., Santiago, J., and Jansen, K. (2021). Wall temperature effect on hypersonic turbulent boundary layers via DNS. Presented at the 2021 AIAA SciTech Forum. [https://doi.org/10.2514/6.2021-1745](https://doi.org/10.2514/6.2021-1745)
+2. Araya, G., Lagares, C., & Jansen, K. (2020). Reynolds number dependency in supersonic spatially-developing turbulent boundary layers. Presented at the 2020 AIAA SciTech Forum. [https://doi.org/10.2514/6.2020-0574](https://doi.org/10.2514/6.2020-0574)
+
+Below are the BibTeX entries for these references:
+
+```bibtex
+@inproceedings{araya2021wall,
+    author = {Araya, G. and Lagares, C. and Santiago, J. and Jansen, K.},
+    title = {Wall temperature effect on hypersonic turbulent boundary layers via DNS},
+    booktitle = {2021 AIAA SciTech Forum},
+    year = {2021},
+    doi = {https://doi.org/10.2514/6.2021-1745}
+}
+
+@inproceedings{araya2020reynolds,
+    author = {Araya, G. and Lagares, C. and Jansen, K.},
+    title = {Reynolds number dependency in supersonic spatially-developing turbulent boundary layers},
+    booktitle = {2020 AIAA SciTech Forum},
+    year = {2020},
+    doi = {https://doi.org/10.2514/6.2020-0574}
+}
+```
+
+Please ensure that these citations are present and appropriately formatted in any resultant publications, reports, presentations, or other dissemination materials.
 
 
