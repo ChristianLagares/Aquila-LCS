@@ -993,18 +993,18 @@ if __name__ == "__main__":
     RUNSIM = True
     CALCULATE_FTLE = True
 
-    NFIELDS = 111
+    NFIELDS = 11
     UPSCALE = 40 #20 # 8 additional flow fields between every real field.
                  # Set this value to 1 to avoid upscaling.
     DNS_TIMESTEP = 2.00E-03 # Simulation timestep
-    SAMPLE_RATE = 1 # Simulation sampling rate (every how many timesteps is the flow sampled)
+    SAMPLE_RATE = 10 # Simulation sampling rate (every how many timesteps is the flow sampled)
     FLOWFIELDS = 1  # How many FTLEs to generate for a dynamic FTLE (1 for a single FTLE)
     SKIP = 1 # Sampling frequency for the FTLEs. (10 would generate an FTLE every 10 flow field)
     MAKE_2D_SIMULATION = False
     WRITE_ALL_TIME_STEPS = False # Write intermediate steps of the particle advection for particle visualization.
 
     CONFIGS = [
-        (7, 6, 6), # 532.2M particles
+        (4, 4, 4), 
     ]
     FCENTERS = list(range(0, FLOWFIELDS, SKIP))
     DIRECTIONS = [-1,1] # Backward and Forward Integration (Attracting and Repelling Lines, respectively)
@@ -1018,7 +1018,7 @@ if __name__ == "__main__":
         master_print(f"    + ({X_UP}, {Y_UP}, {Z_UP})")
 
 
-        BASE_DIR = "../hdf5_u"
+        BASE_DIR = "./SUBSET_30"
         CASE_NAME = "ZPG_LOW_RE"
         MACH_MOD = "INCOMPRESSIBLE"
         WALL_CONDITION = "Adiabatic"
