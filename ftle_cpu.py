@@ -930,8 +930,8 @@ if __name__ == "__main__":
     RUNSIM = True
     CALCULATE_FTLE = True
 
-    NFIELDS = 14 # Number of Flow Fields to reach ~t^+ = 40
-    UPSCALE = 40 #20 # 8 additional flow fields between every real field.
+    NFIELDS = 11 # Number of Flow Fields to reach ~t^+ = 40
+    UPSCALE = 100 #20 # 8 additional flow fields between every real field.
                   # Set this value to 1 to avoid upscaling.
     FLOWFIELDS = 1 # For a dynamic FTLE, set this number to the desired number of FTLEs
     SKIP = 1 # If you require skipping underlying flow fields, set this number to the desired value.
@@ -939,7 +939,7 @@ if __name__ == "__main__":
     WRITE_ALL_TIME_STEPS = False # Write intermediate steps for particle advection visualization.
     # CONFIGS Allows for a list of refinement values along x, y, z directions
     CONFIGS = [
-        (8, 8, 3), # 415.8M particles
+        (4, 4, 4), # 415.8M particles
     ]
     FCENTERS = list(range(0, FLOWFIELDS, SKIP))
     DIRECTIONS = [-1,1] # Backward and Forw
@@ -953,9 +953,9 @@ if __name__ == "__main__":
         master_print(f"    + ({X_UP}, {Y_UP}, {Z_UP})")
 
         # Configure Base Directory
-        BASE_DIR = "./M08/Z_hdf5_c_260_300K"
+        BASE_DIR = "./SUBSET_30"
         CASE_NAME = "ZPG_LOW_RE"
-        MACH_MOD = "M08"
+        MACH_MOD = "INCOMPRESSIBLE"
         WALL_CONDITION = "Adiabatic"
 
         coord_path = f"{BASE_DIR}/coord_1_440.txt.h5"
@@ -981,7 +981,7 @@ if __name__ == "__main__":
             for FLOW_CENTER in FCENTERS:
                 master_print(f"Global Step: {FLOW_CENTER}")
                 gc.collect()
-                dt = DIRECTION * 4.0e-4 * 10
+                dt = DIRECTION * 2.00E-03 * 10
                 FIELDS = Ntime // 2 - 2
                 filenames = filenames_full[Ntime//2 : (Ntime//2) * (DIRECTION * FIELDS) : DIRECTION]
                 CURRENT_ID = os.path.split(filenames[FLOW_CENTER])[1][:-3]
@@ -1035,7 +1035,7 @@ if __name__ == "__main__":
         PARTICLE_COUNT = X_UP * Y_UP * Z_UP * Nx * Ny * Nz
         if CALCULATE_FTLE:
             gc.collect()
-            dt = DIRECTION * 4.0e-4 * 10
+            dt = DIRECTION * 2.00E-03 * 10
             FIELDS = Ntime // 2 - 2
             filenames = filenames_full[Ntime//2 : (Ntime//2) * (DIRECTION * FIELDS) : DIRECTION]
             CURRENT_ID = os.path.split(filenames[FLOW_CENTER])[1][:-3]
