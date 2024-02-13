@@ -22,7 +22,8 @@
 cd DIRECTORY
 
 export NUMBA_NUM_THREADS=CPUS_PER_NODE
-export NUMBA_THREADING_LAYER=tbb
+export OMP_NUM_THREADS=$NUMBA_NUM_THREADS
+export NUMBA_THREADING_LAYER=omp
 
 
 time mpiexec -n NODE_COUNT*GPUS_PER_NODE -ppn GPUS_PER_NODE --cpu-bind none python ftle_cuda.py 
